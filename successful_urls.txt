@@ -1,0 +1,5 @@
+http://www.ics.uci.edu/community/news/view_news.php?id=1023
+http://fano.ics.uci.edu/cites/Author/Gaston-H-Gonnet.html
+http://fano.ics.uci.edu/cites/Document/Linear-space-algorithms-that-build-local-alignments-from-fragments.html
+http://fano.ics.uci.edu/cites/Author/Ilan-Adler.html
+http://fano.ics.uci.edu/cites/Review/MR-95j05157.html

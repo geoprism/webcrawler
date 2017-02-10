@@ -5,6 +5,8 @@ from spacetime_local.declarations import Producer, GetterSetter, Getter
 #from lxml import html,etree
 import re, os
 from time import time
+from bs4 import BeautifulSoup
+from urlparse import urljoin
 
 try:
     # For python 2
@@ -16,8 +18,8 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 LOG_HEADER = "[CRAWLER]"
-url_count = (set() 
-    if not os.path.exists("successful_urls.txt") else 
+url_count = (set()
+    if not os.path.exists("successful_urls.txt") else
     set([line.strip() for line in open("successful_urls.txt").readlines() if line.strip() != ""]))
 MAX_LINKS_TO_DOWNLOAD = 3000
 
@@ -28,11 +30,11 @@ class CrawlerFrame(IApplication):
     def __init__(self, frame):
         self.starttime = time()
         # Set app_id <student_id1>_<student_id2>...
-        self.app_id = ""
+        self.app_id = "34216498_32075491"
         # Set user agent string to IR W17 UnderGrad <student_id1>, <student_id2> ...
         # If Graduate studetn, change the UnderGrad part to Grad.
-        self.UserAgentString = None
-		
+        self.UserAgentString = "IR W17 Undergrad 34216498, 32075491"
+
         self.frame = frame
         assert(self.UserAgentString != None)
         assert(self.app_id != "")
@@ -75,7 +77,7 @@ def process_url_group(group, useragentstr):
     rawDatas, successfull_urls = group.download(useragentstr, is_valid)
     save_count(successfull_urls)
     return extract_next_links(rawDatas), rawDatas
-    
+
 #######################################################################################
 '''
 STUB FUNCTIONS TO BE FILLED OUT BY THE STUDENT.
@@ -87,11 +89,33 @@ def extract_next_links(rawDatas):
     Each obj is of type UrlResponse  declared at L28-42 datamodel/search/datamodel.py
     the return of this function should be a list of urls in their absolute form
     Validation of link via is_valid function is done later (see line 42).
-    It is not required to remove duplicates that have already been downloaded. 
+    It is not required to remove duplicates that have already been downloaded.
     The frontier takes care of that.
 
     Suggested library: lxml
     '''
+    for response in rawDatas:
+        if response.http_code >= 400:         #ignore crawling websites with error code
+            continue
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        specificSoup = soup.find_all('a', href=True)
+        for link in specificSoup:
+            absUrl = urljoin(response.url, link['href'])
+            if "ics.uci.edu" in absUrl:
+                print absUrl
+                print
+                print
+                outputLinks.append(absUrl)
+
+            # print link['href']
+            # print absUrl
+            # print
+            # print
+
+
+
+    print "------------------------              " + str(len(outputLinks))
     return outputLinks
 
 def is_valid(url):
@@ -102,6 +126,8 @@ def is_valid(url):
     This is a great place to filter out crawler traps.
     '''
     parsed = urlparse(url)
+    if "grad/resources" in parsed.path:
+        return False
     if parsed.scheme not in set(["http", "https"]):
         return False
     try:
