@@ -102,11 +102,9 @@ def extract_next_links(rawDatas):
         specificSoup = soup.find_all('a', href=True)
         for link in specificSoup:
             absUrl = urljoin(response.url, link['href'])
-            if "ics.uci.edu" in absUrl:
-                print absUrl
-                print
-                print
-                outputLinks.append(absUrl)
+            #print absUrl
+            #print
+            outputLinks.append(absUrl)
 
             # print link['href']
             # print absUrl
@@ -116,6 +114,7 @@ def extract_next_links(rawDatas):
 
 
     print "------------------------              " + str(len(outputLinks))
+    print
     return outputLinks
 
 def is_valid(url):
@@ -126,8 +125,21 @@ def is_valid(url):
     This is a great place to filter out crawler traps.
     '''
     parsed = urlparse(url)
+
+    if "calendar.ics.uci.edu" in parsed.path:
+        return False
+    if "ganglia.ics.uci.edu" in parsed.path:
+        return False
+    if "www.ics.uci.edu/~mlearn/" in parsed.path:
+        return False
+    if "graphmod.ics.uci.edu" in parsed.path:
+        return False
+    if ".php/" in parsed.path:
+        return False
     if "grad/resources" in parsed.path:
         return False
+
+
     if parsed.scheme not in set(["http", "https"]):
         return False
     try:
