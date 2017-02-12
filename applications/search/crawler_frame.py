@@ -23,10 +23,24 @@ url_count = (set()
     set([line.strip() for line in open("successful_urls.txt").readlines() if line.strip() != ""]))
 MAX_LINKS_TO_DOWNLOAD = 3000
 
-invalid_links = 0
-most_out_links = 0
-big_page = ""
-avg_download = 0
+if not os.path.exists("analytics.txt"):
+    invalid_links = 0
+    most_out_links = 0
+    big_page = "none"
+    avg_download = 0
+else:
+    with open("analytics.txt", "r") as f:
+        line = f.readline()
+        if line.strip() == "":
+            invalid_links = 0
+            most_out_links = 0
+            big_page = "none"
+            avg_download = 0
+        else:
+            invalid_links = line.split()[0]
+            most_out_links = line.split()[1]
+            big_page = line.split()[2]
+            avg_download = line.split()[3]
 
 @Producer(ProducedLink)
 @GetterSetter(OneUnProcessedGroup)
@@ -67,7 +81,12 @@ class CrawlerFrame(IApplication):
             self.done = True
 
     def shutdown(self):
-        print "downloaded ", len(url_count), " in ", time() - self.starttime, " seconds."
+
+        print "downloaded", len(url_count), "in", time() - self.starttime, "seconds."
+        print "Number of invalid links:", invalid_links
+        print "Page with the most output links (",most_out_links,"):", big_page
+        print "Average download time per page:", avg_download
+        save_analytics()
         pass
 
 def save_count(urls):
@@ -77,6 +96,16 @@ def save_count(urls):
     if len(urls):
         with open("successful_urls.txt", "a") as surls:
             surls.write(("\n".join(urls) + "\n").encode("utf-8"))
+
+def save_analytics():
+    global invalid_links
+    global most_out_links
+    global big_page
+    global avg_download
+
+    txt = open("analytics.txt", "w")
+    txt.write(str(invalid_links) + " " + str(most_out_links) + " " + big_page + " " + str(avg_download))
+    txt.close()
 
 def process_url_group(group, useragentstr):
     rawDatas, successfull_urls = group.download(useragentstr, is_valid)
@@ -99,6 +128,9 @@ def extract_next_links(rawDatas):
 
     Suggested library: lxml
     '''
+
+    global most_out_links
+    global big_page
     for response in rawDatas:
         if response.http_code >= 400:         #ignore crawling websites with error code
             continue
@@ -115,11 +147,16 @@ def extract_next_links(rawDatas):
             # print absUrl
             # print
             # print
+        if len(specificSoup) >= most_out_links:
+            most_out_links = len(specificSoup)
+            big_page = response.url
+        print len(specificSoup)
 
-
-
+    print len(rawDatas)
     print "------------------------              " + str(len(outputLinks))
     print
+
+
     return outputLinks
 
 def is_valid(url):
@@ -130,6 +167,7 @@ def is_valid(url):
     This is a great place to filter out crawler traps.
     '''
     parsed = urlparse(url)
+    global invalid_links
 
     if "calendar.ics.uci.edu" in parsed.path:
         return False
@@ -146,14 +184,18 @@ def is_valid(url):
 
 
     if parsed.scheme not in set(["http", "https"]):
+        invalid_links += 1
         return False
     try:
-        return ".ics.uci.edu" in parsed.hostname \
+        result =  ".ics.uci.edu" in parsed.hostname \
             and not re.match(".*\.(css|js|bmp|gif|jpe?g|ico" + "|png|tiff?|mid|mp2|mp3|mp4"\
             + "|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf" \
             + "|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1" \
             + "|thmx|mso|arff|rtf|jar|csv"\
             + "|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+        if not result:
+            invalid_links += 1
+        return result
 
     except TypeError:
         print ("TypeError for ", parsed)
