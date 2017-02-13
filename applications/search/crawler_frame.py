@@ -28,6 +28,7 @@ if not os.path.exists("analytics.txt"):
     most_out_links = 0
     big_page = "none"
     avg_download = 0
+
 else:
     with open("analytics.txt", "r") as f:
         line = f.readline()
@@ -176,18 +177,25 @@ def is_valid(url):
     # print parsed.path
     # print "@@@@@@@@@@@@@@"
     #
-    # if "calendar.ics.uci.edu" in parsed.hostname:
-    #     return False
-    # if "ganglia.ics.uci.edu" in parsed.hostname:
-    #     return False
-    # if "/~mlearn/" in parsed.path:
-    #     return False
-    # if "graphmod" in parsed.hostname:
-    #     return False
-    # if ".php/" in parsed.path:
-    #     return False
-    # if "grad/resources" in parsed.path:
-    #     return False
+    if parsed.hostname == None:
+        return False
+    if "calendar.ics.uci.edu" in parsed.hostname:
+        return False
+    if "ganglia.ics.uci.edu" in parsed.hostname:
+        return False
+    if "/~mlearn/" in parsed.path:
+        return False
+    if "graphmod" in parsed.hostname:
+        return False
+    if ".php/" in parsed.path:
+        return False
+    if "grad/resources" in parsed.path:
+        return False
+    if "http:" in parsed.path:
+        return False
+    if "https:" in parsed.path:
+        return False
+
 
 
     if parsed.scheme not in set(["http", "https"]):
@@ -200,12 +208,7 @@ def is_valid(url):
             + "|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1" \
             + "|thmx|mso|arff|rtf|jar|csv"\
             + "|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) \
-            and not re.match("calendar", parsed.hostname) \
-            and not re.match("ganglia", parsed.hostname) \
-            and not re.match("/~mlearn/", parsed.path) \
-            and not re.match("graphmod", parsed.hostname) \
-            and not re.match(".php/", parsed.path) \
-            and not re.match("grad/resources", parsed.path)
+
         if not result:
             invalid_links += 1
         return result
