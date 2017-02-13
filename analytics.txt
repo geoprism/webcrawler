@@ -1,1 +1,1 @@
-617 135 http://www.ics.uci.edu/pub/arch/JavaFrameworkDoc/c2.comp.graphics.GraphicsBinding.html 0.0545725749262
+904 135 http://www.ics.uci.edu/pub/arch/JavaFrameworkDoc/c2.comp.graphics.GraphicsBinding.html 0.0256896874792

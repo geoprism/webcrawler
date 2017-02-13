@@ -170,19 +170,24 @@ def is_valid(url):
     '''
     parsed = urlparse(url)
     global invalid_links
-
-    if "calendar.ics.uci.edu" in parsed.path:
-        return False
-    if "ganglia.ics.uci.edu" in parsed.path:
-        return False
-    if "www.ics.uci.edu/~mlearn/" in parsed.path:
-        return False
-    if "graphmod.ics.uci.edu" in parsed.path:
-        return False
-    if ".php/" in parsed.path:
-        return False
-    if "grad/resources" in parsed.path:
-        return False
+    #
+    # print "@@@@@@@@@@@@@@"
+    # print parsed.hostname
+    # print parsed.path
+    # print "@@@@@@@@@@@@@@"
+    #
+    # if "calendar.ics.uci.edu" in parsed.hostname:
+    #     return False
+    # if "ganglia.ics.uci.edu" in parsed.hostname:
+    #     return False
+    # if "/~mlearn/" in parsed.path:
+    #     return False
+    # if "graphmod" in parsed.hostname:
+    #     return False
+    # if ".php/" in parsed.path:
+    #     return False
+    # if "grad/resources" in parsed.path:
+    #     return False
 
 
     if parsed.scheme not in set(["http", "https"]):
@@ -194,7 +199,13 @@ def is_valid(url):
             + "|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf" \
             + "|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|epub|dll|cnf|tgz|sha1" \
             + "|thmx|mso|arff|rtf|jar|csv"\
-            + "|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + "|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()) \
+            and not re.match("calendar", parsed.hostname) \
+            and not re.match("ganglia", parsed.hostname) \
+            and not re.match("/~mlearn/", parsed.path) \
+            and not re.match("graphmod", parsed.hostname) \
+            and not re.match(".php/", parsed.path) \
+            and not re.match("grad/resources", parsed.path)
         if not result:
             invalid_links += 1
         return result
