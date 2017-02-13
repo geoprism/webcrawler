@@ -28,20 +28,36 @@ if not os.path.exists("analytics.txt"):
     most_out_links = 0
     big_page = "none"
     avg_download = 0
+    runtime = 0
 
 else:
     with open("analytics.txt", "r") as f:
         line = f.readline()
-        if line.strip() == "":
-            invalid_links = 0
-            most_out_links = 0
-            big_page = "none"
-            avg_download = 0
-        else:
+
+        try:
             invalid_links = int(line.split()[0])
             most_out_links = int(line.split()[1])
             big_page = line.split()[2]
             avg_download = float(line.split()[3])
+            runtime = float(line.split()[4])
+        except:
+            invalid_links = 0
+            most_out_links = 0
+            big_page = "none"
+            avg_download = 0
+            runtime = 0
+        # if line.strip() == "":
+        #     invalid_links = 0
+        #     most_out_links = 0
+        #     big_page = "none"
+        #     avg_download = 0
+        #     runtime = 0
+        # else:
+        #     invalid_links = int(line.split()[0])
+        #     most_out_links = int(line.split()[1])
+        #     big_page = line.split()[2]
+        #     avg_download = float(line.split()[3])
+        #     runtime = float(line.split()[4])
 
 @Producer(ProducedLink)
 @GetterSetter(OneUnProcessedGroup)
@@ -83,7 +99,10 @@ class CrawlerFrame(IApplication):
 
     def shutdown(self):
         global avg_download
-        avg_download = (time() - self.starttime) / len(url_count)
+        global runtime
+        runtime += time() - self.starttime
+        avg_download = runtime / len(url_count)
+
 
         print "downloaded", len(url_count), "in", time() - self.starttime, "seconds."
         print "Number of invalid links:", invalid_links
@@ -105,9 +124,10 @@ def save_analytics():
     global most_out_links
     global big_page
     global avg_download
+    global runtime
 
     txt = open("analytics.txt", "w")
-    txt.write(str(invalid_links) + " " + str(most_out_links) + " " + big_page + " " + str(avg_download))
+    txt.write(str(invalid_links) + " " + str(most_out_links) + " " + big_page + " " + str(avg_download) + " " + str(runtime))
     txt.close()
 
 def process_url_group(group, useragentstr):
