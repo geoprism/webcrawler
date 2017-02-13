@@ -37,10 +37,10 @@ else:
             big_page = "none"
             avg_download = 0
         else:
-            invalid_links = line.split()[0]
-            most_out_links = line.split()[1]
+            invalid_links = int(line.split()[0])
+            most_out_links = int(line.split()[1])
             big_page = line.split()[2]
-            avg_download = line.split()[3]
+            avg_download = float(line.split()[3])
 
 @Producer(ProducedLink)
 @GetterSetter(OneUnProcessedGroup)
@@ -81,6 +81,8 @@ class CrawlerFrame(IApplication):
             self.done = True
 
     def shutdown(self):
+        global avg_download
+        avg_download = time() - self.starttime
 
         print "downloaded", len(url_count), "in", time() - self.starttime, "seconds."
         print "Number of invalid links:", invalid_links
