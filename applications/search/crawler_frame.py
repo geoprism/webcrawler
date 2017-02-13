@@ -82,7 +82,7 @@ class CrawlerFrame(IApplication):
 
     def shutdown(self):
         global avg_download
-        avg_download = time() - self.starttime
+        avg_download = (time() - self.starttime) / len(url_count)
 
         print "downloaded", len(url_count), "in", time() - self.starttime, "seconds."
         print "Number of invalid links:", invalid_links
