@@ -215,6 +215,8 @@ def is_valid(url):
         return False
     if "https:" in parsed.path:
         return False
+    if "gd?C=M;O=D" in parsed.path:
+        return False
 
 
 
